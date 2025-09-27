@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Royal Fashion Co. - Digital Product Passport</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'rf-primary': '#1a1a1a', // Black
+                        'rf-secondary': '#e4e4e7', // Neutral 200 (light gray)
+                        'rf-accent': '#a16207', // Amber 700 (subtle gold)
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        .tab-content { display: none; }
+        .tab-button.active {
+            border-bottom: 3px solid #a16207;
+            color: #1a1a1a;
+            font-weight: 600;
+        }
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            z-index: 50;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .highlight-card {
+            border: 3px solid #a16207; /* Amber 700 */
+            box-shadow: 0 4px 12px rgba(161, 98, 7, 0.3);
+            transition: all 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-rf-secondary min-h-screen font-sans text-rf-primary">
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="flex flex-col items-center">
+            <svg class="animate-spin h-8 w-8 text-rf-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <p class="mt-3 text-sm font-medium">Connecting to Database...</p>
+        </div>
+    </div>
+
+    <!-- Message Modal (Replaces alert()) -->
+    <div id="message-modal" class="fixed inset-0 bg-gray-600 bg-opacity-75 hidden flex items-center justify-center z-50">
+        <div class="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full">
+            <h4 id="modal-title" class="text-lg font-bold mb-3">Notification</h4>
+            <p id="modal-message" class="text-gray-700 mb-4"></p>
+            <button onclick="hideMessageModal()" class="w-full bg-rf-accent text-white py-2 rounded-md hover:bg-opacity-90">Close</button>
+        </div>
+    </div>
+
+    <!-- Main Content Container -->
+    <div class="max-w-4xl mx-auto p-4 md:p-8 bg-white shadow-2xl rounded-xl mt-6 mb-6">
+        
+        <!-- Header -->
+        <header class="text-center mb-6 border-b pb-4">
+            <h1 class="text-3xl font-bold text-rf-primary">Royal Fashion Co.</h1>
+            <h2 id="product-name" class="text-xl font-semibold mt-1">Digital Product Passport: Core Denim Dungarees</h2>
+            <p class="text-sm text-gray-500 mt-1">Price Paid: £250.00 | Piece ID: <span id="piece-id-display" class="font-mono text-rf-accent">MN-001A-8756</span></p>
+        </header>
+
+        <!-- Variant Selection (Dynamically Populated) -->
+        <div id="variant-selector-container" class="mb-6 p-4 bg-rf-secondary rounded-lg">
+            <p class="text-base font-medium text-rf-primary mb-2">
+                Please select your specific fit variant:
+            </p>
+            <select id="variant-select" onchange="updateContent(document.getElementById('variant-select').value)" class="w-full p-2 border border-gray-300 rounded-md focus:ring-rf-accent focus:border-rf-accent">
+                <!-- Options populated by JS -->
+            </select>
+            <p class="text-xs text-gray-500 mt-2">This piece ID covers all available fits (Unisex, Female, Male).</p>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="flex justify-between md:justify-around space-x-2 md:space-x-4 border-b border-gray-200 mb-6 overflow-x-auto">
+            <button class="tab-button active flex-shrink-0 p-3 text-sm transition duration-300" onclick="openTab(event, 'owner')">Owner Access</button>
+            <button class="tab-button flex-shrink-0 p-3 text-sm transition duration-300" onclick="openTab(event, 'origin')">Origin</button>
+            <button class="tab-button flex-shrink-0 p-3 text-sm transition duration-300" onclick="openTab(event, 'care-repair')">Care & Repair</button>
+            <button class="tab-button flex-shrink-0 p-3 text-sm transition duration-300" onclick="openTab(event, 'recycle')">Circularity</button>
+            <button class="tab-button flex-shrink-0 p-3 text-sm transition duration-300" onclick="openTab(event, 'rewards')">Rewards</button>
+        </div>
+
+        <!-- Tab Content -->
+        <div id="content-container">
+
+            <!-- 1. Owner Access Tab (PIECE ID) -->
+            <div id="owner" class="tab-content block">
+                <div class="space-y-4">
+                    <h3 class="text-xl font-semibold border-b pb-2 text-rf-accent">Garment Specifics</h3>
+                    <p><strong>Garment Type:</strong> <span id="owner-type">Dungarees</span> (<span id="owner-variant-name" class="font-bold">Please Select Variant</span>)</p>
+                    <p><strong>Authenticity Status:</strong> <span id="owner-auth-status" class="font-bold text-green-600">Verified Authentic</span></p>
+                    <p><strong>Model SKU:</strong> <span id="owner-model-sku">DNG-CORE-001</span></p>
+                    <p><strong>Owner ID:</strong> <span id="owner-user-id" class="font-mono text-xs">Loading...</span></p>
+                    
+                    <!-- DIGITAL TWIN LINK LOCATION -->
+                    <p><strong>Digital Twin:</strong> <a id="owner-dt-link" href="#" target="_blank" class="text-blue-600 hover:underline">View 3D Model</a></p>
+                    
+                    <div class="mt-4 p-4 bg-rf-secondary rounded-lg">
+                        <p class="font-semibold">Your User ID (for service/rewards):</p>
+                        <p id="auth-uid" class="font-mono text-xs break-all text-rf-primary">Loading...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Origin Tab (ORIGIN AND TRACEABILITY) -->
+            <div id="origin" class="tab-content">
+                <h3 class="text-xl font-semibold border-b pb-2 text-rf-accent mb-4">Traceability and Production Journey</h3>
+                <div class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="p-3 bg-rf-secondary rounded-lg">
+                            <p class="font-semibold text-sm">Design Location</p>
+                            <p id="origin-design-location" class="text-base font-medium text-rf-primary">Loading...</p>
+                            <p class="text-xs text-gray-600">Denmark</p>
+                        </div>
+                        <div class="p-3 bg-rf-secondary rounded-lg">
+                            <p class="font-semibold text-sm">Material Origin</p>
+                            <p id="origin-material-origin" class="text-base font-medium">Loading...</p>
+                            <p class="text-xs text-gray-600">Raw materials source</p>
+                        </div>
+                        <div class="p-3 bg-rf-secondary rounded-lg">
+                            <p class="font-semibold text-sm">Manufacturing Location</p>
+                            <p id="origin-assembly-location" class="text-base font-medium text-rf-primary">Loading...</p>
+                            <p class="text-xs text-gray-600">China</p>
+                        </div>
+                    </div>
+                    
+                    <h4 class="font-semibold text-lg pt-4">Timeline</h4>
+                    <ul id="origin-timeline" class="space-y-3 border-l-2 border-rf-accent pl-4">
+                        <!-- Timeline items loaded here -->
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 3. Care & Repair Tab (CARE INSTRUCTION / SCAN TO REPAIR) -->
+            <div id="care-repair" class="tab-content">
+                <h3 class="text-xl font-semibold border-b pb-2 text-rf-accent mb-4">Care and Maintenance</h3>
+                <div id="care-content" class="space-y-6">
+                    <div class="p-4 bg-rf-secondary rounded-lg">
+                        <h4 class="font-bold text-lg mb-2">Composition & Instructions</h4>
+                        <p><strong>Material Composition:</strong> <span id="care-material-composition" class="font-medium">Loading...</span></p>
+                        <p class="text-sm mt-3 leading-relaxed" id="care-instructions">Loading washing instructions...</p>
+                    </div>
+
+                    <div class="border-t pt-4">
+                        <h4 class="font-bold text-lg mb-3 flex items-center">
+                            <svg class="w-5 h-5 mr-2 text-red-600" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v2.102a1 1 0 01-.894.981l-2.071.345a1 1 0 01-.98-.894l-.346-2.071A1 1 0 014 2.102V4a1 1 0 01-1 1H1a1 1 0 01-1-1V2a1 1 0 011-1h10.3zM16 12a4 4 0 100-8 4 4 0 000 8zm-8 2a1 1 0 01-1 1H1a1 1 0 01-1-1v-2a1 1 0 011-1h6a1 1 0 011 1v2z" clip-rule="evenodd"></path></svg>
+                            Repair History
+                        </h4>
+                        <ul id="care-repair-history" class="list-disc ml-5 text-sm space-y-1">
+                            <!-- Repair history items loaded here -->
+                        </ul>
+                        <button onclick="showMessageModal('Repair Service Initiated', 'You are being redirected to our certified repair partner portal. Please confirm your address and schedule the pickup.')" class="mt-4 w-full md:w-auto px-6 py-3 bg-green-700 text-white font-semibold rounded-lg hover:bg-green-800 transition duration-300">
+                            Book a Repair Service
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. Circularity Tab (UPCYCLE OR RECYCLE) -->
+            <div id="recycle" class="tab-content">
+                <h3 class="text-xl font-semibold border-b pb-2 text-rf-accent mb-4">The Next Life: Circularity Services</h3>
+
+                <!-- Recycle Card (Highlightable) -->
+                <div id="recycle-card" class="p-6 bg-green-50 rounded-lg shadow-lg mb-6 border-2 border-transparent">
+                    <h4 class="font-bold text-xl text-green-700 mb-2 flex items-center">
+                        <svg class="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm-7-8a7 7 0 0111.458-5.263l-2.39 2.39a3 3 0 00-3.327 3.327l-2.39 2.39A7 7 0 013 10z" clip-rule="evenodd"></path></svg>
+                        RECYCLE FOR CASH BACK (40% Refund)
+                    </h4>
+                    <p class="text-sm mb-3">When your garment is truly at the end of its wearable life, return it to us to close the loop.</p>
+                    <p class="font-semibold text-lg text-green-800">Your Refund Value: <span id="recycle-refund-value">Loading...</span></p>
+                    <p class="text-sm mt-1 text-gray-600">This is <span id="recycle-refund-percent">40%</span> of your original purchase price.</p>
+                    <button onclick="showMessageModal('Recycle Program Initiated', 'You are beginning the 40% refund process. We will email you a prepaid shipping label immediately. The refund will be processed upon receipt and material verification.')" class="mt-4 w-full md:w-auto px-6 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition duration-300">
+                        Request Recycling Refund
+                    </button>
+                </div>
+
+                <!-- Upcycle Card (Highlightable) -->
+                <div id="upcycle-card" class="p-6 bg-blue-50 rounded-lg shadow-lg border-2 border-transparent">
+                    <h4 class="font-bold text-xl text-blue-700 mb-2 flex items-center">
+                        <svg class="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M11 3a1 1 0 00-1 1v1a1 1 0 102 0V4a1 1 0 00-1-1zm6.707 5.707l-1 1a1 1 0 001.414 1.414l1-1a1 1 0 00-1.414-1.414zm-14 0a1 1 0 00-1 1v2a1 1 0 102 0v-2a1 1 0 00-1-1zm-1.707-1.707a1 1 0 00-1.414 1.414l1 1a1 1 0 001.414-1.414l-1-1zM10 18a1 1 0 001-1v-1a1 1 0 10-2 0v1a1 1 0 001 1zm-6.707-1.707a1 1 0 001.414 1.414l1-1a1 1 0 00-1.414-1.414l-1 1zm14 0a1 1 0 00-1.414-1.414l-1 1a1 1 0 001.414 1.414l1-1zM10 6a4 4 0 100 8 4 4 0 000-8zm-2 4a2 2 0 114 0 2 2 0 01-4 0z"></path></svg>
+                        UPCYCLE SERVICE (Into a Backpack Bag)
+                    </h4>
+                    <p class="text-sm mb-3">Give your denim a new, highly functional life as a premium accessory.</p>
+                    <p class="font-semibold text-base" id="upcycle-option">Loading upcycling option...</p>
+                    <button onclick="showMessageModal('Upcycle Request Initiated', 'You have started the Upcycle to Backpack service. We will contact you within 24 hours to confirm your color preferences and provide a shipping label.')" class="mt-4 w-full md:w-auto px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition duration-300">
+                        Request Upcycle Service
+                    </button>
+                </div>
+                
+                <div class="mt-6 p-4 bg-gray-100 rounded-lg shadow-inner">
+                    <h4 class="font-bold text-lg mb-2 text-rf-primary">Material Recovery Note</h4>
+                    <p id="recycle-note" class="text-sm text-gray-700">Loading...</p>
+                </div>
+            </div>
+
+            <!-- 5. Rewards Tab (REWARDS/DIGITAL TWINS) -->
+            <div id="rewards" class="tab-content">
+                <h3 class="text-xl font-semibold border-b pb-2 text-rf-accent mb-4">Loyalty and Ownership Rewards</h3>
+                <div class="space-y-6">
+                    <div class="p-4 bg-yellow-50 rounded-lg border-2 border-yellow-300">
+                        <h4 class="font-bold text-xl text-yellow-800 mb-2">Shared Profit Pool (5% Share)</h4>
+                        <p class="text-sm mb-3">You own a piece of the financial success of this product line.</p>
+                        <p class="font-semibold text-lg">Your Earned Share: <span id="rewards-pool-value">Loading...</span></p>
+                        <p class="text-sm text-gray-600 mt-1">This is <span id="rewards-pool-percent">5%</span> of the profit pool value allocated to this specific piece.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="p-4 bg-rf-secondary rounded-lg">
+                            <p class="font-semibold text-sm">Loyalty Tier</p>
+                            <p id="rewards-loyalty-tier" class="text-lg font-bold text-rf-accent">Loading...</p>
+                        </div>
+                        <div class="p-4 bg-rf-secondary rounded-lg">
+                            <p class="font-semibold text-sm">Lifetime Points Earned</p>
+                            <p id="rewards-points-earned" class="text-lg font-bold text-rf-accent">Loading...</p>
+                        </div>
+                    </div>
+
+                    <div class="border-t pt-4">
+                        <h4 class="font-bold text-lg mb-2">Current Exclusive Benefits</h4>
+                        <p id="rewards-current-benefits" class="text-sm leading-relaxed">Loading benefits...</p>
+                        <button onclick="showMessageModal('View Wallet', 'You are being redirected to your Royal Fashion Co. Digital Wallet to view your points, pool share balance, and claim available benefits.')" class="mt-4 w-full md:w-auto px-6 py-3 bg-rf-accent text-white font-semibold rounded-lg hover:bg-opacity-90 transition duration-300">
+                            Access Digital Wallet
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase Imports for Dynamic Data -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Set Firebase logging level for debugging purposes
+        setLogLevel('Debug');
+
+        // --- GLOBAL FIREBASE VARIABLES ---
+        let db;
+        let auth;
+        let appId;
+        let userId;
+
+        // --- MOCK PRODUCT DATA (Used as a fallback and initial structure) ---
+        // This data will be saved to Firestore on the first run.
+        let productData = {
+          "pieceId": "MN-001A-8756",
+          "baseName": "Core Denim Dungarees Line",
+          "garmentType": "Dungarees",
+          "modelSKU": "DNG-CORE-001",
+          "price": 250.00,
+          "ownerAccess": {
+            "authenticityStatus": "Verified Authentic",
+            "primaryOwnerId": "Placeholder",
+            "digitalTwinURL": "https://royal.fashion.co/dt/mn001a8756"
+          },
+          "originAndTraceability": {
+            "materialOrigin": "Gobi Region, Mongolia (Certified Cotton Source)",
+            "designLocation": "Copenhagen, Denmark",
+            "assemblyLocation": "Guangzhou, China (Ethical Factory Audit: Tier 1)",
+            "timeline": [
+              {"date": "2023-01-01", "event": "Raw cotton fiber harvested and sourced."},
+              {"date": "2023-02-15", "event": "Denim fabric woven and dyed in Italy."},
+              {"date": "2023-03-01", "event": "Product design finalized in Copenhagen."},
+              {"date": "2023-03-20", "event": "Garment assembly began in Guangzhou, China."}
+            ]
+          },
+          "circularityAndRecycle": {
+            "endOfLifeRoute": "Return for Circularity Services",
+            "recyclingRefundPercentage": 40,
+            "recyclingRefundValue": 100.00,
+            "upcyclingOption": "Upcycle to a Royal Fashion Co. 'Denim Explorer' backpack bag.",
+            "materialRecoveryNote": "Denim highly suitable for mechanical recycling into insulation or new yarn."
+          },
+          "rewards": {
+            "loyaltyTier": "Silver Investor",
+            "pointsEarned": 500,
+            "sharedPoolPercentage": 5,
+            "sharedPoolValue": 12.50,
+            "currentBenefits": "15% off next repair, early access to collections, and exclusive workshop invitations."
+          },
+          "variants": [
+            { "type": "Unisex Classic Fit", "skuSuffix": "UNX", "materialComposition": "100% Organic Raw Denim", "washingInstructions": "Wash cold, inside out, minimal agitation. Avoid frequent washing to preserve raw denim quality. Tumble dry low or lay flat.", "repairHistory": [], "sizeOptions": ["XS", "S", "M", "L", "XL"] },
+            { "type": "Female Tailored Fit", "skuSuffix": "FML", "materialComposition": "98% Organic Stretch Denim, 2% Elastane", "washingInstructions": "Delicate cycle cold. Do not use bleach. Hang dry to maintain stretch. Iron on low heat if necessary.", "repairHistory": [{"date": "2025-01-10", "service": "Reinforced waistline stitching.", "location": "Porto Repair Studio"}], "sizeOptions": ["UK 6", "UK 8", "UK 10", "UK 12", "UK 14"] },
+            { "type": "Male Straight Fit", "skuSuffix": "MAL", "materialComposition": "100% Organic Heavyweight Denim", "washingInstructions": "Machine wash cold. Note: May shrink 1% in first wash. Air dry recommended to maintain shape.", "repairHistory": [], "sizeOptions": ["28/32", "30/32", "32/34", "34/34", "36/36"] }
+          ]
+        };
+        
+        let currentVariantData = productData.variants[0]; // Default to the first variant
+
+        // --- GLOBAL EXPORTS (Required for inline HTML event handlers) ---
+        // Functions must be attached to the window object to be called from inline 'onclick' etc.
+        window.showMessageModal = function(title, message) {
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-message').textContent = message;
+            document.getElementById('message-modal').classList.remove('hidden');
+        }
+
+        window.hideMessageModal = function() {
+            document.getElementById('message-modal').classList.add('hidden');
+        }
+
+        window.openTab = function(evt, tabName) {
+            let i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tab-content");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+            tablinks = document.getElementsByClassName("tab-button");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+            const targetContent = document.getElementById(tabName);
+            if (targetContent) {
+                targetContent.style.display = "block";
+            }
+            const targetButton = Array.from(tablinks).find(btn => btn.textContent.toLowerCase().includes(tabName.replace('-', ' ')));
+            if (targetButton) {
+                 if (evt) {
+                    evt.currentTarget.className += " active";
+                } else {
+                    targetButton.className += " active";
+                }
+            }
+
+            if (tabName === 'recycle') {
+                const params = getQueryParams();
+                if (params.action === 'upcycle') {
+                    highlightElement('upcycle-card');
+                } else if (params.action === 'recycle') {
+                    highlightElement('recycle-card');
+                }
+            }
+        }
+
+        window.updateContent = function(selectedVariantType) {
+            currentVariantData = productData.variants.find(v => v.type === selectedVariantType);
+
+            if (!currentVariantData) return;
+
+            // Update main header details
+            document.getElementById('piece-id-display').textContent = productData.pieceId;
+
+            // --- 1. Owner Access Tab Update ---
+            document.getElementById('owner-variant-name').textContent = currentVariantData.type;
+            document.getElementById('owner-auth-status').textContent = productData.ownerAccess.authenticityStatus;
+            document.getElementById('owner-dt-link').href = productData.ownerAccess.digitalTwinURL; 
+
+            // --- 2. Origin Tab Update ---
+            document.getElementById('origin-design-location').textContent = productData.originAndTraceability.designLocation;
+            document.getElementById('origin-material-origin').textContent = productData.originAndTraceability.materialOrigin;
+            document.getElementById('origin-assembly-location').textContent = productData.originAndTraceability.assemblyLocation;
+            
+            const timelineEl = document.getElementById('origin-timeline');
+            timelineEl.innerHTML = productData.originAndTraceability.timeline.map(item => 
+                `<li class="text-sm"><span class="font-semibold text-rf-primary">${item.date}:</span> ${item.event}</li>`
+            ).join('');
+
+            // --- 3. Care & Repair Tab Update ---
+            document.getElementById('care-material-composition').textContent = currentVariantData.materialComposition;
+            document.getElementById('care-instructions').textContent = currentVariantData.washingInstructions;
+            
+            const repairEl = document.getElementById('care-repair-history');
+            if (currentVariantData.repairHistory && currentVariantData.repairHistory.length > 0) {
+                repairEl.innerHTML = currentVariantData.repairHistory.map(item =>
+                    `<li><span class="font-semibold">${item.date} (${item.location}):</span> ${item.service}</li>`
+                ).join('');
+            } else {
+                repairEl.innerHTML = '<li class="text-gray-500">No official repair history recorded for this piece.</li>';
+            }
+
+            // --- 4. Circularity Tab Update ---
+            document.getElementById('recycle-refund-value').textContent = `£${productData.circularityAndRecycle.recyclingRefundValue.toFixed(2)}`;
+            document.getElementById('recycle-refund-percent').textContent = `${productData.circularityAndRecycle.recyclingRefundPercentage}%`;
+            document.getElementById('upcycle-option').textContent = productData.circularityAndRecycle.upcyclingOption;
+            document.getElementById('recycle-note').textContent = productData.circularityAndRecycle.materialRecoveryNote;
+
+            // --- 5. Rewards Tab Update ---
+            document.getElementById('rewards-pool-value').textContent = `£${productData.rewards.sharedPoolValue.toFixed(2)}`;
+            document.getElementById('rewards-pool-percent').textContent = `${productData.rewards.sharedPoolPercentage}%`;
+            document.getElementById('rewards-loyalty-tier').textContent = productData.rewards.loyaltyTier;
+            document.getElementById('rewards-points-earned').textContent = productData.rewards.pointsEarned.toLocaleString();
+            document.getElementById('rewards-current-benefits').textContent = productData.rewards.currentBenefits;
+        }
+
+        // --- UTILITY FUNCTIONS (Internal) ---
+
+        function getQueryParams() {
+            const params = {};
+            const parts = window.location.search.substring(1).split('&');
+            for (const part of parts) {
+                if (part) {
+                    const [key, value] = part.split('=').map(decodeURIComponent);
+                    params[key] = value;
+                }
+            }
+            return params;
+        }
+
+        function highlightElement(id) {
+            const element = document.getElementById(id);
+            if (element) {
+                element.classList.add('highlight-card');
+                setTimeout(() => element.classList.remove('highlight-card'), 3000);
+            }
+        }
+        
+        // --- FIREBASE DATA FUNCTIONS ---
+
+        async function initFirebase() {
+            try {
+                // Initialize app and services using provided global variables
+                const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+                appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+                
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+
+                // Authenticate user
+                if (typeof __initial_auth_token !== 'undefined') {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+                userId = auth.currentUser?.uid || crypto.randomUUID();
+                document.getElementById('auth-uid').textContent = userId;
+
+            } catch (error) {
+                console.error("Firebase initialization or authentication failed:", error);
+                showMessageModal("Initialization Error", "Could not connect to the database. Displaying mock data.");
+            }
+        }
+        
+        async function fetchProductData(pieceId) {
+            if (!db) return productData; // Return mock data if DB failed to initialize
+
+            // Path: /artifacts/{appId}/public/data/dpp_products/{pieceId}
+            const docRef = doc(db, `artifacts/${appId}/public/data/dpp_products`, pieceId);
+            
+            try {
+                // Attempt to load the data from Firestore
+                const docSnap = await getDoc(docRef);
+                
+                if (docSnap.exists()) {
+                    console.log("Data fetched from Firestore.");
+                    // Merge Firestore data over mock data structure
+                    return { ...productData, ...docSnap.data() };
+                } else {
+                    console.log("No live product data found in Firestore. Saving mock data...");
+                    // If no document exists, create one using the mock data structure for future use
+                    await setDoc(docRef, productData);
+                    return productData; 
+                }
+            } catch (error) {
+                console.error("Error fetching or setting product data:", error);
+                showMessageModal("Data Error", "There was an issue retrieving live product data. Displaying mock data.");
+                return productData; // Fallback to mock data on error
+            }
+        }
+
+
+        // --- APPLICATION INITIALIZATION ---
+        async function initPassport() {
+            await initFirebase(); // Step 1: Initialize Firebase and Auth
+
+            const params = getQueryParams();
+            const pieceId = productData.pieceId; // Hardcoded piece ID for this demo
+            const initialVariantType = params.variant ? params.variant.replace(/\s/g, ' ') : null; 
+            const initialAction = params.action;
+            
+            // Step 2: Fetch Dynamic Data
+            const fetchedData = await fetchProductData(pieceId);
+            productData = fetchedData; 
+            
+            // 1. Populate Variant Selector
+            const selectEl = document.getElementById('variant-select');
+            selectEl.innerHTML = '<option value="" disabled selected>Select Your Fit...</option>';
+            
+            productData.variants.forEach(variant => {
+                const option = document.createElement('option');
+                option.value = variant.type;
+                option.textContent = variant.type;
+                selectEl.appendChild(option);
+            });
+
+            // 2. Attempt to select variant and update content
+            let variantFound = false;
+            if (initialVariantType) {
+                const variantToSelect = productData.variants.find(v => v.type === initialVariantType);
+                if (variantToSelect) {
+                    selectEl.value = initialVariantType;
+                    updateContent(initialVariantType);
+                    variantFound = true;
+                    document.getElementById('variant-selector-container').classList.add('hidden');
+                }
+            }
+
+            if (!variantFound) {
+                updateContent(productData.variants[0].type); 
+                document.getElementById('owner-variant-name').textContent = 'Please Select Variant';
+            }
+
+            // 3. Handle Deep Linking Action 
+            if (initialAction) {
+                const targetTab = initialAction.includes('upcycle') || initialAction.includes('recycle') ? 'recycle' : initialAction;
+                openTab(null, targetTab);
+            } else {
+                openTab(null, 'owner'); 
+            }
+
+            // 4. Set Owner ID (Mocked or real)
+            document.getElementById('owner-user-id').textContent = productData.ownerAccess.primaryOwnerId === "Placeholder" ? "Not yet claimed" : productData.ownerAccess.primaryOwnerId;
+
+            // Hide loading overlay
+            document.getElementById('loading-overlay').classList.add('hidden');
+        }
+
+        window.onload = initPassport;
+    </script>
+</body>
+</html>
