@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Royal Fashion Co. - Digital Product Passport</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // Configure Tailwind to use a custom color palette and font
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'rf-primary': '#1A1A1A', // Black
+                        'rf-secondary': '#D9D9D9', // Neutral 200 (light gray)
+                        'rf-accent': '#FFD700', // Amber 700 (subtle gold)
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        /* Import the Inter font */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        
+        body {
+            background-color: #f7f7f7;
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Styling for the custom tab buttons */
+        .tab-button {
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            font-weight: 600;
+            color: #4A4A4A;
+            padding-bottom: 0.5rem;
+        }
+        
+        .tab-button.active {
+            border-bottom-color: #1A1A1A; /* Dark underline for active tab */
+            color: #1A1A1A; /* Dark text for active tab */
+            font-weight: 700;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .section-header {
+            border-left: 4px solid #FFD700;
+            padding-left: 1rem;
+        }
+
+        .care-instruction-list li {
+            position: relative;
+            padding-left: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .care-instruction-list li::before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            color: #FFD700;
+            font-size: 1.25rem;
+            line-height: 1;
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4 sm:p-8 bg-rf-secondary">
+
+    <!-- Main Container -->
+    <div id="app" class="max-w-4xl mx-auto bg-white shadow-xl rounded-2xl overflow-hidden">
+        
+        <!-- Header / Product Title Area -->
+        <header class="p-6 sm:p-8 bg-rf-primary text-white">
+            <p class="text-xs uppercase opacity-75 tracking-widest">Digital Product Passport</p>
+            <h1 class="text-3xl sm:text-4xl font-extrabold mt-1">Authentic Dungarees</h1>
+            <p class="mt-2 text-rf-accent font-semibold text-lg">by Royal Fashion Co.</p>
+        </header>
+
+        <!-- Product Image Placeholder -->
+        <div class="relative w-full h-64 bg-gray-100 flex items-center justify-center border-b border-gray-200">
+            <!-- Placeholder for a high-quality product image -->
+            <img src="https://placehold.co/800x400/1A1A1A/FFD700?text=Product+Image" 
+                 alt="Image of the Authentic Dungarees"
+                 class="w-full h-full object-cover"
+                 onerror="this.onerror=null; this.src='https://placehold.co/800x400/1A1A1A/FFD700?text=Product+Image+Unavailable';">
+            <div class="absolute inset-0 bg-gradient-to-t from-white/50 to-transparent"></div>
+        </div>
+
+        <main class="p-4 sm:p-8">
+            <!-- Tab Navigation (Piece ID is first) -->
+            <nav class="flex space-x-4 overflow-x-auto whitespace-nowrap pb-2 mb-6 border-b border-gray-200">
+                <button class="tab-button active" data-tab="id">Piece ID & Cert.</button>
+                <button class="tab-button" data-tab="care">Care & Repair</button>
+                <button class="tab-button" data-tab="trace">Origin & Traceability</button>
+                <button class="tab-button" data-tab="recycle">Upcycle or Recycle</button>
+                <button class="tab-button" data-tab="rewards">Rewards & Digital Twin</button>
+            </nav>
+
+            <!-- 1. Piece ID & Certification Content (Active) -->
+            <section id="id" class="tab-content active">
+                <h2 class="text-xl font-bold section-header mb-4">Unique Digital Identity & Composition</h2>
+                <div class="space-y-4">
+                    <p class="text-sm text-gray-600">This unique identifier verifies the authenticity of your product and links it to its full digital history.</p>
+                    
+                    <!-- Piece ID Display -->
+                    <div class="bg-rf-primary text-white p-4 rounded-xl flex justify-between items-center shadow-lg">
+                        <div>
+                            <p class="text-sm font-light uppercase opacity-80">Unique Piece ID</p>
+                            <p class="text-2xl font-mono tracking-wider mt-1 text-rf-accent">RFCDG-2025-47B2</p>
+                        </div>
+                        <!-- Verified Checkmark Icon -->
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-rf-accent">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                        </svg>
+                    </div>
+
+                    <!-- Material Composition Updated -->
+                    <h3 class="font-semibold text-lg pt-2 text-rf-primary">Material Composition & Certification</h3>
+                    <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                        <li>**Denim Fabric:** 55% Hemp, 45% Organic Cotton (GOTS Certified)</li>
+                        <li>**Hardware:** Recycled Brass, OEKO-TEX certified</li>
+                        <li>**Dye Process:** Low-Impact Dyeing, water-saving technology used</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- 2. Care & Repair Content -->
+            <section id="care" class="tab-content">
+                <h2 class="text-xl font-bold section-header mb-4">Washing and Maintenance Instructions</h2>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <!-- Care instructions should be adjusted for the blend, keeping it general and safe for hemp/cotton -->
+                        <ul class="care-instruction-list text-gray-700">
+                            <li>Fasten all clasps before washing</li>
+                            <li>Machine wash cold with like colors (delicate cycle recommended)</li>
+                            <li>Wash and dry inside out to preserve color</li>
+                            <li>Tumble dry low or hang to dry (avoid high heat)</li>
+                            <li>Iron on reverse side, low heat</li>
+                            <li>Do not bleach or dry clean</li>
+                        </ul>
+                        <p class="mt-4 text-sm text-gray-500">Hemp is naturally durable but benefits from gentle, low-heat care to maintain softness.</p>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                        <h3 class="font-semibold text-lg mb-2 text-rf-primary">Scan to Repair / Service</h3>
+                        <p class="text-sm text-gray-600 mb-3">Found a loose thread or need a professional repair? Scan this code to initiate a service request with Royal Fashion Co.'s certified repair partners.</p>
+                        <!-- Mock Repair QR Code -->
+                        <img src="https://placehold.co/100x100/1A1A1A/FFFFFF?text=QR+Code" alt="QR Code for Repair Service" class="w-24 h-24 rounded-lg">
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. Origin & Traceability Content (Updated for Design in Denmark, Manuf. in China) -->
+            <section id="trace" class="tab-content">
+                <h2 class="text-xl font-bold section-header mb-4">Journey of the Garment</h2>
+                <p class="mb-4 text-sm text-gray-600">Follow the key stages of production, from design concept to final assembly, ensuring full transparency.</p>
+                
+                <div class="space-y-6">
+                    
+                    <!-- Step 1: Design -->
+                    <div class="flex items-start space-x-3">
+                        <div class="flex-shrink-0 w-8 h-8 flex items-center justify-center bg-rf-accent text-rf-primary rounded-full font-bold">1</div>
+                        <div>
+                            <h3 class="font-semibold text-lg text-rf-primary">Concept & Design</h3>
+                            <p class="text-sm text-gray-700">**Location:** Copenhagen, Denmark</p>
+                            <p class="text-xs text-gray-500">Developed by our in-house design team with a focus on durability and timeless Scandinavian aesthetics.</p>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Raw Materials -->
+                    <div class="flex items-start space-x-3">
+                        <div class="flex-shrink-0 w-8 h-8 flex items-center justify-center bg-rf-accent text-rf-primary rounded-full font-bold">2</div>
+                        <div>
+                            <h3 class="font-semibold text-lg text-rf-primary">Raw Materials (Hemp & Organic Cotton)</h3>
+                            <p class="text-sm text-gray-700">**Sourcing:** Various certified farms in Asia & Europe</p>
+                            <p class="text-xs text-gray-500">Hemp and GOTS-certified organic cotton are harvested and processed into durable yarn.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 3: Fabric Production & Dyeing (UPDATED LOCATION TO CHINA) -->
+                    <div class="flex items-start space-x-3">
+                        <div class="flex-shrink-0 w-8 h-8 flex items-center justify-center bg-rf-accent text-rf-primary rounded-full font-bold">3</div>
+                        <div>
+                            <h3 class="font-semibold text-lg text-rf-primary">Fabric Production (Weaving & Dyeing)</h3>
+                            <p class="text-sm text-gray-700">**Location:** Guangzhou, China</p>
+                            <p class="text-xs text-gray-500">Textile mill utilizes low-impact dyeing methods and a closed-loop water system.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 4: Cut & Sew -->
+                    <div class="flex items-start space-x-3">
+                        <div class="flex-shrink-0 w-8 h-8 flex items-center justify-center bg-rf-accent text-rf-primary rounded-full font-bold">4</div>
+                        <div>
+                            <h3 class="font-semibold text-lg text-rf-primary">Manufacturing (Cut & Sew)</h3>
+                            <p class="text-sm text-gray-700">**Location:** Guangzhou, China</p>
+                            <p class="text-xs text-gray-500">SA8000 Certified facility ensuring fair wages and meticulous quality control.</p>
+                        </div>
+                    </div>
+
+                    <a href="#" class="inline-flex items-center text-sm font-semibold text-rf-primary hover:text-rf-accent transition-colors mt-4">
+                        View Detailed Supply Chain Ledger 
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 ml-1">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+                        </svg>
+                    </a>
+                </div>
+            </section>
+
+            <!-- 4. Upcycle or Recycle Content -->
+            <section id="recycle" class="tab-content">
+                <h2 class="text-xl font-bold section-header mb-4">End-of-Life Program</h2>
+                <p class="mb-6 text-sm text-gray-600">When your garment reaches the end of its useful life, help us keep the materials in circulation.</p>
+                
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-green-50 p-4 rounded-xl border border-green-200">
+                        <h3 class="font-semibold text-lg text-green-700 mb-2">Option 1: Upcycle/Resell</h3>
+                        <p class="text-sm text-gray-700 mb-3">If the garment is still in good condition, you can easily list it on our official resale platform. Earn store credit or cash!</p>
+                        <a href="#" class="text-sm font-semibold text-green-600 hover:underline">Start Resale Process</a>
+                    </div>
+                    
+                    <div class="bg-blue-50 p-4 rounded-xl border border-blue-200">
+                        <h3 class="font-semibold text-lg text-blue-700 mb-2">Option 2: Recycle</h3>
+                        <p class="text-sm text-gray-700 mb-3">For worn-out garments, return them to any Royal Fashion Co. store for textile recycling. We'll handle the logistics.</p>
+                        <a href="#" class="text-sm font-semibold text-blue-600 hover:underline">Find a Drop-off Location</a>
+                    </div>
+                </div>
+
+                <div class="mt-6 p-4 bg-gray-100 rounded-lg">
+                    <!-- Recyclability score updated to reflect the 55% Hemp / 45% Cotton mono-blend, which is highly recyclable -->
+                    <p class="font-semibold text-gray-700">Recyclability Score:</p>
+                    <div class="w-full bg-gray-300 rounded-full h-2.5 mt-1">
+                      <div class="bg-rf-accent h-2.5 rounded-full" style="width: 95%"></div>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1">This garment is 95% recyclable due to its natural fiber mono-material content.</p>
+                </div>
+            </section>
+
+            <!-- 5. Rewards / Digital Twin Content -->
+            <section id="rewards" class="tab-content">
+                <h2 class="text-xl font-bold section-header mb-4">Your Connection & Ownership</h2>
+                <div class="space-y-6">
+                    
+                    <div>
+                        <h3 class="font-semibold text-lg text-rf-primary mb-2">Digital Twin (NFT/Blockchain)</h3>
+                        <p class="text-sm text-gray-700 mb-3">This garment is linked to a unique **Digital Twin** asset, securing its ownership history and facilitating future circularity services (resale, repair, recycling).</p>
+                        <div class="p-3 bg-rf-secondary rounded-lg flex justify-between items-center text-sm font-mono">
+                            <span>Token ID: <span class="text-rf-primary font-bold">0x43bE...98cA</span></span>
+                            <a href="#" class="text-rf-primary hover:text-rf-accent font-semibold">View on Explorer</a>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3 class="font-semibold text-lg text-rf-primary mb-2">Owner Rewards</h3>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                            <li>**Exclusive Access:** Invitations to private sales and new collection launches.</li>
+                            <li>**Service Credit:** \$10 credit automatically applied to your next repair or recycling transaction.</li>
+                            <li>**Early Bird:** 10% discount on your next purchase of a traceable product.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+        </main>
+        
+        <footer class="p-6 sm:p-8 bg-gray-100 text-center text-sm text-gray-500 border-t border-gray-200">
+            &copy; 2025 Royal Fashion Co. | Sustainability Report 
+        </footer>
+    </div>
+
+    <script>
+        // Get all tab buttons and content sections
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        // Function to handle tab switching
+        function switchTab(tabId) {
+            // Deactivate all buttons and hide all content
+            tabButtons.forEach(button => button.classList.remove('active'));
+            tabContents.forEach(content => content.classList.remove('active'));
+
+            // Activate the clicked button
+            const clickedButton = document.querySelector(`.tab-button[data-tab="${tabId}"]`);
+            if (clickedButton) {
+                clickedButton.classList.add('active');
+            }
+            
+            // Show the corresponding content
+            const contentToShow = document.getElementById(tabId);
+            if (contentToShow) {
+                contentToShow.classList.add('active');
+            }
+        }
+
+        // Attach click event listeners to all buttons
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const tabId = button.getAttribute('data-tab');
+                switchTab(tabId);
+            });
+        });
+
+        // Ensure the correct tab is active on page load (Piece ID)
+        document.addEventListener('DOMContentLoaded', () => {
+            switchTab('id'); 
+        });
+    </script>
+</body>
+</html>
